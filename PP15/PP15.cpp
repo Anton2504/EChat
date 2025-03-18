@@ -3,6 +3,7 @@
 int main() {
 
     setlocale(LC_ALL, "rus");
+
     Chat chat;
     chat.Start();
 

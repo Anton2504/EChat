@@ -1,12 +1,15 @@
 #include "User.h"
 
-User::User(const string& login, const string& pass, const string& name) :_login(login), _pass(pass), _name(name) {}
+User::User(const string& login, const string& pass, const string& name) : _login(login), _pass(pass), _name(name) {
+    _autorized = 0;
+}
 
 User::User(const User& user) {
     _login = user._login;
     _pass = user._pass;
     _name = user._name;
     _msgs = user._msgs;
+    _autorized = user._autorized;
 }
 
 User& User::operator=(const User& user) {
@@ -14,6 +17,7 @@ User& User::operator=(const User& user) {
     _pass = user._pass;
     _name = user._name;
     _msgs = user._msgs;
+    _autorized = user._autorized;
     return *this;
 }
 

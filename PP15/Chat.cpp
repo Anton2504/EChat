@@ -5,6 +5,12 @@ void Chat::Start() {
     User test2("Locki", "123t4", "Wasd777");
     _users.push_back(move(test1));                    //Тестовые пользователи добавляем в _users
     _users.push_back(move(test2));
+    tree = make_unique<TTree>();                    //Тестовое дерево
+    vector<string> words{ "string","vector","char","int","auto" };
+    for (string str : words)
+        tree->Insert(&tree->root, str);             //Добавление слов в дерево из вектора words
+    
+    
     bool runMainMenu = 1; int choice;       //Переменные в Start() для навигации и выбора по меню с помощью проверок
     while (runMainMenu) {
         ShowMain();
@@ -33,15 +39,15 @@ void Chat::Start() {
 }
 
 void Chat::ShowMain() {
-    cout << "\n   Добро пожаловать в EChat 1.0\n" << endl;
+    cout << "\n   Добро пожаловать в EChat 1.1\n" << endl;
     cout << "    1 - Зарегистрироваться\n    2 - Войти\n    3 - Выход\n";
 }
 
-void Chat::ShowUserMenu() {
+void Chat::ShowUserMenu() {    
     bool runUserMenu = 1;
     while (runUserMenu) {
         cout << "\n   Главное Меню\n" << endl;
-        cout << "    1 - Отправить сообщение потльзователю\n    2 - Проверить почтовый ящик\n    3 - Войти в Чат\n    4 - Все пользователи\n    5 - Выйти из учётной записи\n";
+        cout << "    1 - Отправить сообщение пользователю\n    2 - Проверить почтовый ящик\n    3 - Войти в Чат\n    4 - Все пользователи\n    5 - Выйти из учётной записи\n";
         int choice = 0;
         if (cin >> choice) {
             switch (choice) {
@@ -90,6 +96,7 @@ void Chat::ShowChatMenu() {
 void Chat::LogIn() {
     cout << "   Введите свой Login" << endl;
     ShowAllUsers();
+    bool login_find = 0;
     string choice_str;                         //Переменная для выбора Пользователя из списка уже существующих
     if (cin >> choice_str) {
         for (size_t i = 0; i != (_users.size()); ++i)    //Ищем его в векторе _users
@@ -97,9 +104,12 @@ void Chat::LogIn() {
                 if (CheckPass(_users[i])) {
                     _cUser = _users[i];
                     _cUser.SetAutorized(1);
-                }
+                    login_find = 1;
+                }                
             }
     }
+    if (!login_find)
+        cout << "   Данный Login отсутсвует в списке пользователей\n   Введите корректный Login или зарегистрируйтесь\n";
 }
 
 bool Chat::CheckPass(const User& user) {
@@ -196,7 +206,7 @@ string Chat::CreateName() {
         if (cin >> name) {
             try {
                 for (size_t i = 0;i != name.size();++i) {
-                    if (!isalnum(name[i])) {            //Только латинские и буквы, по каждому симолу в name
+                    if (!isalnum(name[i])) {            //Только латинские и буквы, по каждому символу в name
                         throw runtime_error("   Ошибка при создании имени пользователя\n");
                     }
                 }
@@ -226,6 +236,7 @@ string Chat::CreateMessage() {
     string msg;
     cout << "    Введите сообщение\n";
     if (cin >> msg) {
+        msg = CreateAutoTextMsg(msg);           //Функция АвтоТекста
         msg.replace(0, 0, " пишет:");           //Добавляем в начало строки "Пользователь пишет: "
         msg.replace(0, 0, _cUser.GetName());
     }
@@ -244,6 +255,25 @@ void Chat::SendMessage() {  //Отправка сообщения пользователю
                 _users[i].SetMessageBox(msg);
             }
     }
+}
+string Chat::CreateAutoTextMsg(const string& pat) {
+    string pattern = pat;
+    vector<string> sugg = tree->AutoComplete(tree->root, pattern);
+    if (sugg.size() == 0) {
+        cout << "    В нашем словаре отсутвуют слова которые начинаются на " << pattern << endl;
+        cout << "    Желаете добавить новое слово в наш словарь? \n    y - yes    n - no\n";
+        char choice;
+        if (cin >> choice) {
+            if (choice == 'y') {
+                tree->Insert(&tree->root, pattern);
+                cout << "    Слово успешно добавлено\n";
+                return pattern;
+            }
+        }
+    }
+    else
+        return tree->ChoiceWordFromTree(sugg, pattern);
+    return pattern;
 }
 
 void Chat::MyMessages() {
