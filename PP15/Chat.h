@@ -1,12 +1,12 @@
-#pragma once
+п»ї#pragma once
 #include "User.h"
 #include "AlgoritmAutoText.h"
 
 class Chat {
-    vector<User> _users;    //Учётные записи всех пользователей
-    User _cUser;            //Учётная запись текущего пользователя, создаётся из AddNewUser() или присваевается из списка пользователей _users
+    vector<User> _users;    //РЈС‡С‘С‚РЅС‹Рµ Р·Р°РїРёСЃРё РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+    User _cUser;            //РЈС‡С‘С‚РЅР°СЏ Р·Р°РїРёСЃСЊ С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, СЃРѕР·РґР°С‘С‚СЃСЏ РёР· AddNewUser() РёР»Рё РїСЂРёСЃРІР°РµРІР°РµС‚СЃСЏ РёР· СЃРїРёСЃРєР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ _users
     vector<string> _chatMsg;
-    unique_ptr<TTree> tree = nullptr;  //указатель на тернарное дерево (словарь)
+    unique_ptr<TTree> tree = nullptr;  //СѓРєР°Р·Р°С‚РµР»СЊ РЅР° С‚РµСЂРЅР°СЂРЅРѕРµ РґРµСЂРµРІРѕ (СЃР»РѕРІР°СЂСЊ)
 public:
     void Start();
     void ShowMain();

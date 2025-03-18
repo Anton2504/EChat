@@ -1,12 +1,12 @@
-#pragma once
+п»ї#pragma once
 #include "MessageBox.h"
 
 struct User {
     User() = default;
-    User(const string& login, const string& pass, const string& name);  //Конструктор
+    User(const string& login, const string& pass, const string& name);  //РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
     ~User() {}
     User(const User& user);
-    User& operator=(const User& user);  //Конструкоры копирования
+    User& operator=(const User& user);  //РљРѕРЅСЃС‚СЂСѓРєРѕСЂС‹ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
     void SetLogin(const string& l);
     void SetPass(const string& p);
     void SetName(const string& n);
@@ -15,13 +15,13 @@ struct User {
     string GetLogin() const;
     string GetPass() const;
     string GetName() const;
-    MessageBox GetMessageBox() const;   //Почтовый ящик пользователя vector<string>
+    MessageBox GetMessageBox() const;   //РџРѕС‡С‚РѕРІС‹Р№ СЏС‰РёРє РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ vector<string>
     bool GetAutorized() const;
     void SetAutorized(bool&& autoriz);
 private:
     string _login;
     string _pass;
     string _name;
-    bool _autorized = 0;        //Авторизирован ли пользователь
+    bool _autorized = 0;        //РђРІС‚РѕСЂРёР·РёСЂРѕРІР°РЅ Р»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ
     MessageBox _msgs;
 };

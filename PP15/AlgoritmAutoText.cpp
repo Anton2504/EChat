@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "AlgoritmAutoText.h"
 using namespace std;
 
@@ -79,16 +79,16 @@ vector<string> TTree::AutoComplete(Node* root, string pattern) {
 }
 
 string TTree::ChoiceWordFromTree(vector<string> sugg, string pat) {
-    cout << "   Â ñëîâàðå åñòü ñëåäóþùèå ñëîâà:\n";
-    for (int i = 0; i < sugg.size() && i < 10; i++)             //Îãðàíè÷åíèå íà âûâîä ñëîâ 10
+    cout << "   Ð’ ÑÐ»Ð¾Ð²Ð°Ñ€Ðµ ÐµÑÑ‚ÑŒ ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ðµ ÑÐ»Ð¾Ð²Ð°:\n";
+    for (int i = 0; i < sugg.size() && i < 10; i++)             //ÐžÐ³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ðµ Ð½Ð° Ð²Ñ‹Ð²Ð¾Ð´ ÑÐ»Ð¾Ð² 10
         cout << "    [" << i << "] " << pat << sugg[i] << "\n";
-    cout << "   Ââåäèòå èíäåêñ ñëîâà êîòîðîå âàì ïîäõîäèò\n";
+    cout << "   Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¸Ð½Ð´ÐµÐºÑ ÑÐ»Ð¾Ð²Ð° ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ðµ Ð²Ð°Ð¼ Ð¿Ð¾Ð´Ñ…Ð¾Ð´Ð¸Ñ‚\n";
     int choice;
     string word;
     if (cin >> choice)
         if ((choice >= 0) && (choice < 10) && choice < sugg.size())
             word = pat + sugg[choice];
         else
-            cout << "   Íåâåðíûé èíäåêñ\n";
+            cout << "   ÐÐµÐ²ÐµÑ€Ð½Ñ‹Ð¹ Ð¸Ð½Ð´ÐµÐºÑ\n";
     return word;
 }

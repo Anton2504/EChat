@@ -1,17 +1,17 @@
-#include "Chat.h"
+п»ї#include "Chat.h"
 
 void Chat::Start() {
-    User test1("Tor2", "1234", "Ant");        //Тестовые пользователи
+    User test1("Tor2", "1234", "Ant");        //РўРµСЃС‚РѕРІС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»Рё
     User test2("Locki", "123t4", "Wasd777");
-    _users.push_back(move(test1));                    //Тестовые пользователи добавляем в _users
+    _users.push_back(move(test1));                    //РўРµСЃС‚РѕРІС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»Рё РґРѕР±Р°РІР»СЏРµРј РІ _users
     _users.push_back(move(test2));
-    tree = make_unique<TTree>();                    //Тестовое дерево
+    tree = make_unique<TTree>();                    //РўРµСЃС‚РѕРІРѕРµ РґРµСЂРµРІРѕ
     vector<string> words{ "string","vector","char","int","auto" };
     for (string str : words)
-        tree->Insert(&tree->root, str);             //Добавление слов в дерево из вектора words
+        tree->Insert(&tree->root, str);             //Р”РѕР±Р°РІР»РµРЅРёРµ СЃР»РѕРІ РІ РґРµСЂРµРІРѕ РёР· РІРµРєС‚РѕСЂР° words
     
     
-    bool runMainMenu = 1; int choice;       //Переменные в Start() для навигации и выбора по меню с помощью проверок
+    bool runMainMenu = 1; int choice;       //РџРµСЂРµРјРµРЅРЅС‹Рµ РІ Start() РґР»СЏ РЅР°РІРёРіР°С†РёРё Рё РІС‹Р±РѕСЂР° РїРѕ РјРµРЅСЋ СЃ РїРѕРјРѕС‰СЊСЋ РїСЂРѕРІРµСЂРѕРє
     while (runMainMenu) {
         ShowMain();
         if (cin >> choice) {
@@ -39,15 +39,15 @@ void Chat::Start() {
 }
 
 void Chat::ShowMain() {
-    cout << "\n   Добро пожаловать в EChat 1.1\n" << endl;
-    cout << "    1 - Зарегистрироваться\n    2 - Войти\n    3 - Выход\n";
+    cout << "\n   Р”РѕР±СЂРѕ РїРѕР¶Р°Р»РѕРІР°С‚СЊ РІ EChat 1.1\n" << endl;
+    cout << "    1 - Р—Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°С‚СЊСЃСЏ\n    2 - Р’РѕР№С‚Рё\n    3 - Р’С‹С…РѕРґ\n";
 }
 
 void Chat::ShowUserMenu() {    
     bool runUserMenu = 1;
     while (runUserMenu) {
-        cout << "\n   Главное Меню\n" << endl;
-        cout << "    1 - Отправить сообщение пользователю\n    2 - Проверить почтовый ящик\n    3 - Войти в Чат\n    4 - Все пользователи\n    5 - Выйти из учётной записи\n";
+        cout << "\n   Р“Р»Р°РІРЅРѕРµ РњРµРЅСЋ\n" << endl;
+        cout << "    1 - РћС‚РїСЂР°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ\n    2 - РџСЂРѕРІРµСЂРёС‚СЊ РїРѕС‡С‚РѕРІС‹Р№ СЏС‰РёРє\n    3 - Р’РѕР№С‚Рё РІ Р§Р°С‚\n    4 - Р’СЃРµ РїРѕР»СЊР·РѕРІР°С‚РµР»Рё\n    5 - Р’С‹Р№С‚Рё РёР· СѓС‡С‘С‚РЅРѕР№ Р·Р°РїРёСЃРё\n";
         int choice = 0;
         if (cin >> choice) {
             switch (choice) {
@@ -74,8 +74,8 @@ void Chat::ShowUserMenu() {
 void Chat::ShowChatMenu() {
     bool runChatMenu = 1;
     while (runChatMenu) {
-        cout << "\n   Меню Чата\n" << endl;
-        cout << "    1 - Отправить сообщение в Чат\n    2 - Просмотреть сообщения Чата\n    3 - Покинуть Чат\n";
+        cout << "\n   РњРµРЅСЋ Р§Р°С‚Р°\n" << endl;
+        cout << "    1 - РћС‚РїСЂР°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РІ Р§Р°С‚\n    2 - РџСЂРѕСЃРјРѕС‚СЂРµС‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ Р§Р°С‚Р°\n    3 - РџРѕРєРёРЅСѓС‚СЊ Р§Р°С‚\n";
         int choice;
         if (cin >> choice) {
             switch (choice) {
@@ -94,12 +94,12 @@ void Chat::ShowChatMenu() {
 }
 
 void Chat::LogIn() {
-    cout << "   Введите свой Login" << endl;
+    cout << "   Р’РІРµРґРёС‚Рµ СЃРІРѕР№ Login" << endl;
     ShowAllUsers();
     bool login_find = 0;
-    string choice_str;                         //Переменная для выбора Пользователя из списка уже существующих
+    string choice_str;                         //РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ РІС‹Р±РѕСЂР° РџРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· СЃРїРёСЃРєР° СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС…
     if (cin >> choice_str) {
-        for (size_t i = 0; i != (_users.size()); ++i)    //Ищем его в векторе _users
+        for (size_t i = 0; i != (_users.size()); ++i)    //РС‰РµРј РµРіРѕ РІ РІРµРєС‚РѕСЂРµ _users
             if (_users[i].GetLogin() == choice_str) {
                 if (CheckPass(_users[i])) {
                     _cUser = _users[i];
@@ -109,20 +109,20 @@ void Chat::LogIn() {
             }
     }
     if (!login_find)
-        cout << "   Данный Login отсутсвует в списке пользователей\n   Введите корректный Login или зарегистрируйтесь\n";
+        cout << "   Р”Р°РЅРЅС‹Р№ Login РѕС‚СЃСѓС‚СЃРІСѓРµС‚ РІ СЃРїРёСЃРєРµ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№\n   Р’РІРµРґРёС‚Рµ РєРѕСЂСЂРµРєС‚РЅС‹Р№ Login РёР»Рё Р·Р°СЂРµРіРёСЃС‚СЂРёСЂСѓР№С‚РµСЃСЊ\n";
 }
 
 bool Chat::CheckPass(const User& user) {
-    cout << "   Введите пароль\n";
+    cout << "   Р’РІРµРґРёС‚Рµ РїР°СЂРѕР»СЊ\n";
     string check_pass;
     int count{ 3 };
     while ((cin >> check_pass) && (count > 0)) {
         if (check_pass == user.GetPass()) {
-            cout << "    Авторизация выполнена\n";
+            cout << "    РђРІС‚РѕСЂРёР·Р°С†РёСЏ РІС‹РїРѕР»РЅРµРЅР°\n";
             return true;
         }
         else {
-            cout << "    Неверный пароль\nПопробуйте ещё раз. Осталось попыток: " << count << endl;
+            cout << "    РќРµРІРµСЂРЅС‹Р№ РїР°СЂРѕР»СЊ\nРџРѕРїСЂРѕР±СѓР№С‚Рµ РµС‰С‘ СЂР°Р·. РћСЃС‚Р°Р»РѕСЃСЊ РїРѕРїС‹С‚РѕРє: " << count << endl;
             --count;
         }
     }
@@ -130,41 +130,41 @@ bool Chat::CheckPass(const User& user) {
 }
 
 void Chat::AddNewUser() {
-    cout << "   Введите Login" << endl;
+    cout << "   Р’РІРµРґРёС‚Рµ Login" << endl;
     _cUser.SetLogin(CreateLogin());
-    cout << "   Введите имя" << endl;
+    cout << "   Р’РІРµРґРёС‚Рµ РёРјСЏ" << endl;
     _cUser.SetName(CreateName());
-    cout << "   Создайте пароль от учётной записи" << endl;
+    cout << "   РЎРѕР·РґР°Р№С‚Рµ РїР°СЂРѕР»СЊ РѕС‚ СѓС‡С‘С‚РЅРѕР№ Р·Р°РїРёСЃРё" << endl;
     _cUser.SetPass(CreatePassword());
-    cout << "   Учётная запись успешно создана" << endl;
+    cout << "   РЈС‡С‘С‚РЅР°СЏ Р·Р°РїРёСЃСЊ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅР°" << endl;
     _users.push_back(_cUser);
     _cUser.SetAutorized(1);
 }
 
 string Chat::CreateLogin() {
-    string login; bool valid_login{ false };       //Переменная для цикла, пока Login не пройдёт проверку
+    string login; bool valid_login{ false };       //РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ С†РёРєР»Р°, РїРѕРєР° Login РЅРµ РїСЂРѕР№РґС‘С‚ РїСЂРѕРІРµСЂРєСѓ
     while (!valid_login) {
         if (cin >> login) {
             try {
                 for (size_t i = 0;i != login.size();++i) {
-                    if (!isalnum(login[i])) {            //Только латинские и буквы, по каждому симолу в login
-                        throw runtime_error("   Ошибка при создании login пользователя\n");
+                    if (!isalnum(login[i])) {            //РўРѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєРёРµ Рё Р±СѓРєРІС‹, РїРѕ РєР°Р¶РґРѕРјСѓ СЃРёРјРѕР»Сѓ РІ login
+                        throw runtime_error("   РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё login РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ\n");
                     }
                 }
             }
             catch (runtime_error err) {
-                cout << err.what() << "   Только латинские символы или натуральные числа\n";
-                continue;   //Возвращаемся в начало цикла, если ловим исключение
+                cout << err.what() << "   РўРѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєРёРµ СЃРёРјРІРѕР»С‹ РёР»Рё РЅР°С‚СѓСЂР°Р»СЊРЅС‹Рµ С‡РёСЃР»Р°\n";
+                continue;   //Р’РѕР·РІСЂР°С‰Р°РµРјСЃСЏ РІ РЅР°С‡Р°Р»Рѕ С†РёРєР»Р°, РµСЃР»Рё Р»РѕРІРёРј РёСЃРєР»СЋС‡РµРЅРёРµ
             }
-            bool check_login{ 0 };      //Переменная для проверки совпадения с существующим Login в _users
+            bool check_login{ 0 };      //РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё СЃРѕРІРїР°РґРµРЅРёСЏ СЃ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРј Login РІ _users
             for (size_t i = 0; i != (_users.size()); ++i) {
                 if (_users[i].GetLogin() == login) {
-                    cout << "   Пользователь с таким login уже существует :( \n";
-                    check_login = true;  //Если нашли, через else в начало цикла
+                    cout << "   РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј login СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ :( \n";
+                    check_login = true;  //Р•СЃР»Рё РЅР°С€Р»Рё, С‡РµСЂРµР· else РІ РЅР°С‡Р°Р»Рѕ С†РёРєР»Р°
                 }
             }
-            if (!check_login) {      //Не нашли - возвращаем
-                cout << "   Ваш login создан успешно" << endl << endl;
+            if (!check_login) {      //РќРµ РЅР°С€Р»Рё - РІРѕР·РІСЂР°С‰Р°РµРј
+                cout << "   Р’Р°С€ login СЃРѕР·РґР°РЅ СѓСЃРїРµС€РЅРѕ" << endl << endl;
                 valid_login = 1;
                 return login;
             }
@@ -174,56 +174,56 @@ string Chat::CreateLogin() {
 }
 
 string Chat::CreatePassword() {
-    bool valid_pass{ 0 };       //Переменная для цикла, пока Password не пройдёт проверку
+    bool valid_pass{ 0 };       //РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ С†РёРєР»Р°, РїРѕРєР° Password РЅРµ РїСЂРѕР№РґС‘С‚ РїСЂРѕРІРµСЂРєСѓ
     const int size_pass{ 14 };
     string pass;
-    cout << "Пароль должен быть от 4 до " << size_pass << "символов, \nсодержать только латинские символы или натуральные числа\n";
+    cout << "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕС‚ 4 РґРѕ " << size_pass << "СЃРёРјРІРѕР»РѕРІ, \nСЃРѕРґРµСЂР¶Р°С‚СЊ С‚РѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєРёРµ СЃРёРјРІРѕР»С‹ РёР»Рё РЅР°С‚СѓСЂР°Р»СЊРЅС‹Рµ С‡РёСЃР»Р°\n";
     while (!valid_pass) {
         if (cin >> pass) {
             try {
                 for (int i = 0;i != pass.size();++i)
                 {
-                    if ((size_pass <= pass.size()) || (!isalnum(pass[i])) || (pass.size() < 4)) {            //Только латинские и буквы, по каждому симолу в pass. 4<pass<14(size_pass)
-                        throw runtime_error("   Ошибка при создании пароля\n");
+                    if ((size_pass <= pass.size()) || (!isalnum(pass[i])) || (pass.size() < 4)) {            //РўРѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєРёРµ Рё Р±СѓРєРІС‹, РїРѕ РєР°Р¶РґРѕРјСѓ СЃРёРјРѕР»Сѓ РІ pass. 4<pass<14(size_pass)
+                        throw runtime_error("   РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё РїР°СЂРѕР»СЏ\n");
                     }
                 }
             }
             catch (runtime_error err) {
-                cout << err.what() << "   Только латинские символы или натуральные числа\n   Длина пароля от 4 до " << size_pass << endl;
-                continue;   //Возвращаемся в начало цикла, если ловим исключение
+                cout << err.what() << "   РўРѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєРёРµ СЃРёРјРІРѕР»С‹ РёР»Рё РЅР°С‚СѓСЂР°Р»СЊРЅС‹Рµ С‡РёСЃР»Р°\n   Р”Р»РёРЅР° РїР°СЂРѕР»СЏ РѕС‚ 4 РґРѕ " << size_pass << endl;
+                continue;   //Р’РѕР·РІСЂР°С‰Р°РµРјСЃСЏ РІ РЅР°С‡Р°Р»Рѕ С†РёРєР»Р°, РµСЃР»Рё Р»РѕРІРёРј РёСЃРєР»СЋС‡РµРЅРёРµ
             }
         }
-        cout << "   Пароль успешно создан" << endl << endl;
-        valid_pass = 1;     //Выходим из цикла
+        cout << "   РџР°СЂРѕР»СЊ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅ" << endl << endl;
+        valid_pass = 1;     //Р’С‹С…РѕРґРёРј РёР· С†РёРєР»Р°
     }
     return pass;
 }
 
 string Chat::CreateName() {
-    bool valid_name{ 0 };       //Переменная для цикла, пока name не пройдёт проверку
+    bool valid_name{ 0 };       //РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ С†РёРєР»Р°, РїРѕРєР° name РЅРµ РїСЂРѕР№РґС‘С‚ РїСЂРѕРІРµСЂРєСѓ
     string name;
     while (!valid_name) {
         if (cin >> name) {
             try {
                 for (size_t i = 0;i != name.size();++i) {
-                    if (!isalnum(name[i])) {            //Только латинские и буквы, по каждому символу в name
-                        throw runtime_error("   Ошибка при создании имени пользователя\n");
+                    if (!isalnum(name[i])) {            //РўРѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєРёРµ Рё Р±СѓРєРІС‹, РїРѕ РєР°Р¶РґРѕРјСѓ СЃРёРјРІРѕР»Сѓ РІ name
+                        throw runtime_error("   РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё РёРјРµРЅРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ\n");
                     }
                 }
             }
             catch (runtime_error err) {
-                cout << err.what() << "   Только латинские символы или натуральные числа\n";
-                continue;   //Возвращаемся в начало цикла, если ловим исключение
+                cout << err.what() << "   РўРѕР»СЊРєРѕ Р»Р°С‚РёРЅСЃРєРёРµ СЃРёРјРІРѕР»С‹ РёР»Рё РЅР°С‚СѓСЂР°Р»СЊРЅС‹Рµ С‡РёСЃР»Р°\n";
+                continue;   //Р’РѕР·РІСЂР°С‰Р°РµРјСЃСЏ РІ РЅР°С‡Р°Р»Рѕ С†РёРєР»Р°, РµСЃР»Рё Р»РѕРІРёРј РёСЃРєР»СЋС‡РµРЅРёРµ
             }
-            bool check_name{ 0 };           //Переменная для проверки совпадения с существующим именем в _users
+            bool check_name{ 0 };           //РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё СЃРѕРІРїР°РґРµРЅРёСЏ СЃ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёРј РёРјРµРЅРµРј РІ _users
             for (size_t i = 0; i != (_users.size()); ++i) {
                 if (_users[i].GetName() == name) {
-                    cout << "   Пользователь с таким именем существует :( \n";
-                    check_name = true;  //Если нашли, через else в начало цикла
+                    cout << "   РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј РёРјРµРЅРµРј СЃСѓС‰РµСЃС‚РІСѓРµС‚ :( \n";
+                    check_name = true;  //Р•СЃР»Рё РЅР°С€Р»Рё, С‡РµСЂРµР· else РІ РЅР°С‡Р°Р»Рѕ С†РёРєР»Р°
                 }
             }
-            if (!check_name) {      //Не нашли - возвращаем
-                cout << "   Приветствую " << name << endl << endl;
+            if (!check_name) {      //РќРµ РЅР°С€Р»Рё - РІРѕР·РІСЂР°С‰Р°РµРј
+                cout << "   РџСЂРёРІРµС‚СЃС‚РІСѓСЋ " << name << endl << endl;
                 check_name = 1;
                 return name;
             }
@@ -234,22 +234,22 @@ string Chat::CreateName() {
 
 string Chat::CreateMessage() {
     string msg;
-    cout << "    Введите сообщение\n";
+    cout << "    Р’РІРµРґРёС‚Рµ СЃРѕРѕР±С‰РµРЅРёРµ\n";
     if (cin >> msg) {
-        msg = CreateAutoTextMsg(msg);           //Функция АвтоТекста
-        msg.replace(0, 0, " пишет:");           //Добавляем в начало строки "Пользователь пишет: "
+        msg = CreateAutoTextMsg(msg);           //Р¤СѓРЅРєС†РёСЏ РђРІС‚РѕРўРµРєСЃС‚Р°
+        msg.replace(0, 0, " РїРёС€РµС‚:");           //Р”РѕР±Р°РІР»СЏРµРј РІ РЅР°С‡Р°Р»Рѕ СЃС‚СЂРѕРєРё "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїРёС€РµС‚: "
         msg.replace(0, 0, _cUser.GetName());
     }
     return msg;
 }
 
-void Chat::SendMessage() {  //Отправка сообщения пользователю
+void Chat::SendMessage() {  //РћС‚РїСЂР°РІРєР° СЃРѕРѕР±С‰РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ
     string msg;
     ShowAllUsers();
-    string choice_str;                         //Переменная для сравнения Пользователя из списка уже существующих
-    cout << "    Введите имя пользователя из списка\n";
+    string choice_str;                         //РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ СЃСЂР°РІРЅРµРЅРёСЏ РџРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· СЃРїРёСЃРєР° СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС…
+    cout << "    Р’РІРµРґРёС‚Рµ РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· СЃРїРёСЃРєР°\n";
     if (cin >> choice_str) {
-        for (size_t i = 0; i != (_users.size()); ++i)    //Ищем его в векторе _users
+        for (size_t i = 0; i != (_users.size()); ++i)    //РС‰РµРј РµРіРѕ РІ РІРµРєС‚РѕСЂРµ _users
             if (_users[i].GetLogin() == choice_str) {
                 msg = CreateMessage();
                 _users[i].SetMessageBox(msg);
@@ -260,13 +260,13 @@ string Chat::CreateAutoTextMsg(const string& pat) {
     string pattern = pat;
     vector<string> sugg = tree->AutoComplete(tree->root, pattern);
     if (sugg.size() == 0) {
-        cout << "    В нашем словаре отсутвуют слова которые начинаются на " << pattern << endl;
-        cout << "    Желаете добавить новое слово в наш словарь? \n    y - yes    n - no\n";
+        cout << "    Р’ РЅР°С€РµРј СЃР»РѕРІР°СЂРµ РѕС‚СЃСѓС‚РІСѓСЋС‚ СЃР»РѕРІР° РєРѕС‚РѕСЂС‹Рµ РЅР°С‡РёРЅР°СЋС‚СЃСЏ РЅР° " << pattern << endl;
+        cout << "    Р–РµР»Р°РµС‚Рµ РґРѕР±Р°РІРёС‚СЊ РЅРѕРІРѕРµ СЃР»РѕРІРѕ РІ РЅР°С€ СЃР»РѕРІР°СЂСЊ? \n    y - yes    n - no\n";
         char choice;
         if (cin >> choice) {
             if (choice == 'y') {
                 tree->Insert(&tree->root, pattern);
-                cout << "    Слово успешно добавлено\n";
+                cout << "    РЎР»РѕРІРѕ СѓСЃРїРµС€РЅРѕ РґРѕР±Р°РІР»РµРЅРѕ\n";
                 return pattern;
             }
         }
@@ -277,10 +277,10 @@ string Chat::CreateAutoTextMsg(const string& pat) {
 }
 
 void Chat::MyMessages() {
-    cout << "    Ваши сообщения:\n";
-    for (size_t i = 0; i != _users.size(); ++i) {       //Найти в векторе пользователей _users
-        if (_users[i].GetLogin() == _cUser.GetLogin()) {        //Login текущего пользователя(нас интересует индекс i)
-            for (size_t j = 0; j != (_users[i].GetMessageBox())._text.size();++j) {     //Текущему пользователю показать его почтовый ящик из учётки в векторе _users
+    cout << "    Р’Р°С€Рё СЃРѕРѕР±С‰РµРЅРёСЏ:\n";
+    for (size_t i = 0; i != _users.size(); ++i) {       //РќР°Р№С‚Рё РІ РІРµРєС‚РѕСЂРµ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ _users
+        if (_users[i].GetLogin() == _cUser.GetLogin()) {        //Login С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ(РЅР°СЃ РёРЅС‚РµСЂРµСЃСѓРµС‚ РёРЅРґРµРєСЃ i)
+            for (size_t j = 0; j != (_users[i].GetMessageBox())._text.size();++j) {     //РўРµРєСѓС‰РµРјСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ РїРѕРєР°Р·Р°С‚СЊ РµРіРѕ РїРѕС‡С‚РѕРІС‹Р№ СЏС‰РёРє РёР· СѓС‡С‘С‚РєРё РІ РІРµРєС‚РѕСЂРµ _users
                 cout << "    " << j << " - " << (_users[i].GetMessageBox())._text[j] << endl;
             }
         }
@@ -288,20 +288,20 @@ void Chat::MyMessages() {
 }
 
 void Chat::ShowAllUsers() {
-    cout << "   Зарегистрированные пользователи:\n";
-    for (size_t i = 0; i != _users.size(); ++i) {           // Вывести вектор _users в cout
-        cout << "    Пользователь [" << i << "] " << _users[i].GetLogin() << endl;
+    cout << "   Р—Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»Рё:\n";
+    for (size_t i = 0; i != _users.size(); ++i) {           // Р’С‹РІРµСЃС‚Рё РІРµРєС‚РѕСЂ _users РІ cout
+        cout << "    РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ [" << i << "] " << _users[i].GetLogin() << endl;
     }
 }
 
 void Chat::SendChatMsg() {
     string msg(CreateMessage());
-    _chatMsg.push_back(msg);    //Добавляем сообщение в vectror<string>
+    _chatMsg.push_back(msg);    //Р”РѕР±Р°РІР»СЏРµРј СЃРѕРѕР±С‰РµРЅРёРµ РІ vectror<string>
     return;
 }
 
-void Chat::ShowChatMsg() {  //Сообщения Чата
-    cout << "    Сообщения Чата:\n";
+void Chat::ShowChatMsg() {  //РЎРѕРѕР±С‰РµРЅРёСЏ Р§Р°С‚Р°
+    cout << "    РЎРѕРѕР±С‰РµРЅРёСЏ Р§Р°С‚Р°:\n";
     for (size_t i = 0; i != _chatMsg.size(); ++i)
         cout << "  " << _chatMsg[i] << endl;
 }

@@ -1,10 +1,10 @@
-#pragma once
+п»ї#pragma once
 #include <iostream>
 #include <vector>
 using namespace std;
 
 struct TTree {
-    struct Node {       //Структура Ноды
+    struct Node {       //РЎС‚СЂСѓРєС‚СѓСЂР° РќРѕРґС‹
         char data;
         bool end;
         Node* left;
@@ -18,5 +18,5 @@ struct TTree {
     vector<string> AutoComplete(Node* root, string pattern);
     string ChoiceWordFromTree(vector<string> sugg, string pat);
     
-    Node* root = nullptr;       //Корень тернарного дерева
+    Node* root = nullptr;       //РљРѕСЂРµРЅСЊ С‚РµСЂРЅР°СЂРЅРѕРіРѕ РґРµСЂРµРІР°
 };
