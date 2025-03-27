@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "User.h"
 #include "AlgoritmAutoText.h"
+#include "SHA256.h"
 
 class Chat {
     vector<User> _users;    //Учётные записи всех пользователей
@@ -25,4 +26,6 @@ public:
     void ShowAllUsers();    
     void SendChatMsg();
     void ShowChatMsg();
+
+    friend class SHA256;        //Hash класс
 };

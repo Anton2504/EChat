@@ -131,12 +131,14 @@
     <ClCompile Include="Chat.cpp" />
     <ClCompile Include="MessageBox.cpp" />
     <ClCompile Include="PP15.cpp" />
+    <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="User.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlgoritmAutoText.h" />
     <ClInclude Include="Chat.h" />
     <ClInclude Include="MessageBox.h" />
+    <ClInclude Include="SHA256.h" />
     <ClInclude Include="User.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

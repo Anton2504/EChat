@@ -20,7 +20,7 @@ struct User {
     void SetAutorized(bool&& autoriz);
 private:
     string _login;
-    string _pass;
+    string _pass;               //Хранит хеш пароля (SHA256)
     string _name;
     bool _autorized = 0;        //Авторизирован ли пользователь
     MessageBox _msgs;

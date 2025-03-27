@@ -39,7 +39,7 @@ void Chat::Start() {
 }
 
 void Chat::ShowMain() {
-    cout << "\n   Добро пожаловать в EChat 1.1\n" << endl;
+    cout << "\n   Добро пожаловать в EChat 1.2\n" << endl;
     cout << "    1 - Зарегистрироваться\n    2 - Войти\n    3 - Выход\n";
 }
 
@@ -114,9 +114,12 @@ void Chat::LogIn() {
 
 bool Chat::CheckPass(const User& user) {
     cout << "   Введите пароль\n";
+    SHA256 temp;
     string check_pass;
     int count{ 3 };
     while ((cin >> check_pass) && (count > 0)) {
+        temp.update(check_pass);
+        check_pass = temp.backToString(temp.digest());
         if (check_pass == user.GetPass()) {
             cout << "    Авторизация выполнена\n";
             return true;
@@ -183,7 +186,7 @@ string Chat::CreatePassword() {
             try {
                 for (int i = 0;i != pass.size();++i)
                 {
-                    if ((size_pass <= pass.size()) || (!isalnum(pass[i])) || (pass.size() < 4)) {            //Только латинские и буквы, по каждому симолу в pass. 4<pass<14(size_pass)
+                    if ((size_pass <= pass.size()) || (!isalnum(pass[i])) || (pass.size() < 4)) {            //Только латинские и буквы, по каждому символу в pass. 4<pass<14(size_pass)
                         throw runtime_error("   Ошибка при создании пароля\n");
                     }
                 }
@@ -196,7 +199,9 @@ string Chat::CreatePassword() {
         cout << "   Пароль успешно создан" << endl << endl;
         valid_pass = 1;     //Выходим из цикла
     }
-    return pass;
+    SHA256 temp;
+    temp.update(pass);
+    return temp.backToString(temp.digest());    //возвращаем хеш пароля
 }
 
 string Chat::CreateName() {
