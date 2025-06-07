@@ -1,6 +1,7 @@
 ﻿#include "Chat.h"
+#include <codecvt> // Для кодировки
 
-void Chat::Start() {
+void Chat::Start() {    
     User test1("Tor2", "1234", "Ant");        //Тестовые пользователи
     User test2("Locki", "123t4", "Wasd777");
     _users.push_back(move(test1));                    //Тестовые пользователи добавляем в _users
@@ -39,15 +40,16 @@ void Chat::Start() {
 }
 
 void Chat::ShowMain() {
-    cout << "\n   Добро пожаловать в EChat 1.2\n" << endl;
+    cout << "\n   Добро пожаловать в EChat 1.3\n" << endl;
     cout << "    1 - Зарегистрироваться\n    2 - Войти\n    3 - Выход\n";
 }
 
 void Chat::ShowUserMenu() {    
     bool runUserMenu = 1;
     while (runUserMenu) {
-        cout << "\n   Главное Меню\n" << endl;
-        cout << "    1 - Отправить сообщение пользователю\n    2 - Проверить почтовый ящик\n    3 - Войти в Чат\n    4 - Все пользователи\n    5 - Выйти из учётной записи\n";
+        cout << "\n   Главное Меню\n\n";
+        cout << "    1 - Отправить сообщение пользователю\n    2 - Проверить почтовый ящик\n    3 - Войти в Чат\n";
+        cout << "    4 - Все пользователи\n    5 - Функция автотескта\n    6 - Выйти из учётной записи\n";
         int choice = 0;
         if (cin >> choice) {
             switch (choice) {
@@ -64,6 +66,9 @@ void Chat::ShowUserMenu() {
                 ShowAllUsers();
                 break;
             case 5:
+                ShowAutoTextMenu();
+                break;
+            case 6:
                 _cUser.SetAutorized(0);
                 return;
             }
@@ -92,175 +97,227 @@ void Chat::ShowChatMenu() {
         }
     }
 }
-
 void Chat::LogIn() {
     cout << "   Введите свой Login" << endl;
-    ShowAllUsers();
-    bool login_find = 0;
-    string choice_str;                         //Переменная для выбора Пользователя из списка уже существующих
-    if (cin >> choice_str) {
-        for (size_t i = 0; i != (_users.size()); ++i)    //Ищем его в векторе _users
-            if (_users[i].GetLogin() == choice_str) {
-                if (CheckPass(_users[i])) {
-                    _cUser = _users[i];
-                    _cUser.SetAutorized(1);
-                    login_find = 1;
-                }                
+    string login_check;
+    if (cin >> login_check) {
+        if (IsAlNumString(login_check)) {
+            vector<string> mySQL_res;
+            string query{ "SELECT login FROM users where login = '" + login_check + "';" };
+            cout << "query  = " << query << endl;
+            mySQL_res = SendAndResQueryMySQL(query);
+            if (mySQL_res.empty()) {
+                cout << "   Данный Login отсутсвует в списке пользователей\n   Введите корректный Login или зарегистрируйтесь\n";
             }
+            else {
+                _cUser.SetLogin(login_check);
+                if (CheckPass()) {
+                    query = { "SELECT name FROM users where login = '" + login_check + "';" };
+                    mySQL_res = SendAndResQueryMySQL(query);
+                    if (!mySQL_res.empty()) {
+                        _cUser.SetName(mySQL_res[0]);
+                    }
+                    _cUser.SetAutorized(1);
+                    return;
+                }
+            }
+        }
     }
-    if (!login_find)
-        cout << "   Данный Login отсутсвует в списке пользователей\n   Введите корректный Login или зарегистрируйтесь\n";
 }
 
-bool Chat::CheckPass(const User& user) {
+
+bool Chat::CheckPass() {
     cout << "   Введите пароль\n";
-    SHA256 temp;
-    string check_pass;
+    string pass;
+    bool check_run{ true };
     int count{ 3 };
-    while ((cin >> check_pass) && (count > 0)) {
-        temp.update(check_pass);
-        check_pass = temp.backToString(temp.digest());
-        if (check_pass == user.GetPass()) {
-            cout << "    Авторизация выполнена\n";
-            return true;
-        }
-        else {
-            cout << "    Неверный пароль\nПопробуйте ещё раз. Осталось попыток: " << count << endl;
-            --count;
+    while (check_run) {
+        if (cin >> pass) {
+            if (CheckMaskPass(pass) && (count > 0)) {
+                vector<string> mySQL_res;
+                SHA256 temp;
+                temp.update(pass);
+                pass = temp.backToString(temp.digest());    //возвращаем хеш пароля
+                string query{ "select pass from users_login where user_login = '" + _cUser.GetLogin() + "' and pass = '" + pass + "';" };
+                cout << "query = " << query << endl;
+                cout << "pass = " << pass << endl;
+                mySQL_res = SendAndResQueryMySQL(query);
+                if (!mySQL_res.empty()) {
+                    cout << "    Авторизация выполнена\n";
+                    return true;
+                }
+                else {
+                    cout << "    Неверный пароль\nПопробуйте ещё раз. Осталось попыток: " << count << endl;
+                    --count;
+                    continue;
+                }
+            }
+            check_run = false;
         }
     }
     return false;
 }
 
-void Chat::AddNewUser() {
-    cout << "   Введите Login" << endl;
-    _cUser.SetLogin(CreateLogin());
-    cout << "   Введите имя" << endl;
-    _cUser.SetName(CreateName());
-    cout << "   Создайте пароль от учётной записи" << endl;
-    _cUser.SetPass(CreatePassword());
+void Chat::AddNewUser() {    
+    CreateLogin();
+    CreateName();
+    CreatePassword();
     cout << "   Учётная запись успешно создана" << endl;
-    _users.push_back(_cUser);
+    //_users.push_back(_cUser);
     _cUser.SetAutorized(1);
 }
 
-string Chat::CreateLogin() {
-    string login; bool valid_login{ false };       //Переменная для цикла, пока Login не пройдёт проверку
+void Chat::CreateLogin() {
+    string login; bool valid_login{ false };       //Переменная для цикла, пока Login не пройдёт проверку    
+    vector<string> mySQL_res;
+    cout << "   Введите Login" << endl;
     while (!valid_login) {
         if (cin >> login) {
-            try {
-                for (size_t i = 0;i != login.size();++i) {
-                    if (!isalnum(login[i])) {            //Только латинские и буквы, по каждому симолу в login
-                        throw runtime_error("   Ошибка при создании login пользователя\n");
-                    }
+            if (IsAlNumString(login)) {
+                string query{ "SELECT login FROM users where login = '" + login + "';" };
+                cout << "query  = " << query << endl;
+                mySQL_res = SendAndResQueryMySQL(query);
+                if (!mySQL_res.empty()) {
+                    cout << "   Ошибка при создании пользователя :(\n   Попробуйте ещё раз\n";
+                    continue;
+                }
+                else {
+                    query = "insert into users (login) values ('" + login + "');";
+                    cout << "query  = " << query << endl;
+                    SendQueryMySQL(query);
+                    valid_login = 1;
+                    _cUser.SetLogin(login);
+                    cout << "   Login " << login << " создан\n";
+                    continue;
                 }
             }
-            catch (runtime_error err) {
-                cout << err.what() << "   Только латинские символы или натуральные числа\n";
-                continue;   //Возвращаемся в начало цикла, если ловим исключение
+            else {
+                cout << "   Ошибка при создании login пользователя\n   Только латинские символы или натуральные числа\n";
+                continue;
             }
-            bool check_login{ 0 };      //Переменная для проверки совпадения с существующим Login в _users
-            for (size_t i = 0; i != (_users.size()); ++i) {
-                if (_users[i].GetLogin() == login) {
-                    cout << "   Пользователь с таким login уже существует :( \n";
-                    check_login = true;  //Если нашли, через else в начало цикла
-                }
-            }
-            if (!check_login) {      //Не нашли - возвращаем
-                cout << "   Ваш login создан успешно" << endl << endl;
-                valid_login = 1;
-                return login;
-            }
-            else continue;
         }
     }
 }
 
-string Chat::CreatePassword() {
+void Chat::CreatePassword() {
     bool valid_pass{ 0 };       //Переменная для цикла, пока Password не пройдёт проверку
     const int size_pass{ 14 };
     string pass;
-    cout << "Пароль должен быть от 4 до " << size_pass << "символов, \nсодержать только латинские символы или натуральные числа\n";
+    cout << "   Создайте пароль от учётной записи" << endl;
+    cout << "Пароль должен быть от 4 до " << size_pass << "символов, \nсодержать только латинские, специальные символы и числа\n";
     while (!valid_pass) {
         if (cin >> pass) {
-            try {
-                for (int i = 0;i != pass.size();++i)
-                {
-                    if ((size_pass <= pass.size()) || (!isalnum(pass[i])) || (pass.size() < 4)) {            //Только латинские и буквы, по каждому символу в pass. 4<pass<14(size_pass)
-                        throw runtime_error("   Ошибка при создании пароля\n");
-                    }
-                }
+            if (CheckMaskPass(pass) && (pass.size() <= size_pass) && (pass.size() > 4)) {
+                SHA256 temp;
+                temp.update(pass);
+                pass = temp.backToString(temp.digest());    //возвращаем хеш пароля
+                string query{ "update users_login set pass ='" + pass + "' where user_login = '" + _cUser.GetLogin() + "';" };
+                cout << "query  = " << query << endl;
+                SendQueryMySQL(query);
+                cout << "   Пароль успешно создан"  << endl;
+                valid_pass = 1;     //Выходим из цикла
+                continue;
             }
-            catch (runtime_error err) {
-                cout << err.what() << "   Только латинские символы или натуральные числа\n   Длина пароля от 4 до " << size_pass << endl;
-                continue;   //Возвращаемся в начало цикла, если ловим исключение
+            else {
+                cout << "   Ошибка при создании pasword пользователя\n   Только латинские, специальные символы и числа. От 4 до " << size_pass << endl;
+                continue;
             }
         }
-        cout << "   Пароль успешно создан" << endl << endl;
-        valid_pass = 1;     //Выходим из цикла
     }
-    SHA256 temp;
-    temp.update(pass);
-    return temp.backToString(temp.digest());    //возвращаем хеш пароля
 }
 
-string Chat::CreateName() {
+void Chat::CreateName() {
+    cout << "   Введите имя" << endl;
     bool valid_name{ 0 };       //Переменная для цикла, пока name не пройдёт проверку
     string name;
+    vector<string> mySQL_res;
     while (!valid_name) {
         if (cin >> name) {
-            try {
-                for (size_t i = 0;i != name.size();++i) {
-                    if (!isalnum(name[i])) {            //Только латинские и буквы, по каждому символу в name
-                        throw runtime_error("   Ошибка при создании имени пользователя\n");
-                    }
+            if (IsAlNumString(name)) {
+                string query{ "SELECT name FROM users where name = '" + name + "';" };
+                cout << "query  = " << query << endl;
+                mySQL_res = SendAndResQueryMySQL(query);
+                if (!mySQL_res.empty()) {
+                    cout << "   Ошибка при создании name \n   Пользователь с таким именем уже существует\n";
+                    continue;
+                }
+                else {
+                    query = { "update users set name ='" + name + "' where login = '" + _cUser.GetLogin() + "';" };
+                    cout << "query  = " << query << endl;
+                    SendQueryMySQL(query);
+                    _cUser.SetName(name);
+                    valid_name = true;
+                    cout << "   Приветсвую " << name << endl;
+                    return;
                 }
             }
-            catch (runtime_error err) {
-                cout << err.what() << "   Только латинские символы или натуральные числа\n";
-                continue;   //Возвращаемся в начало цикла, если ловим исключение
+            else {
+                cout << "   Ошибка при создании name пользователя\n   Только латинские символы и числа\n";
+                continue;
             }
-            bool check_name{ 0 };           //Переменная для проверки совпадения с существующим именем в _users
-            for (size_t i = 0; i != (_users.size()); ++i) {
-                if (_users[i].GetName() == name) {
-                    cout << "   Пользователь с таким именем существует :( \n";
-                    check_name = true;  //Если нашли, через else в начало цикла
-                }
-            }
-            if (!check_name) {      //Не нашли - возвращаем
-                cout << "   Приветствую " << name << endl << endl;
-                check_name = 1;
-                return name;
-            }
-            else continue;
         }
     }
 }
 
 string Chat::CreateMessage() {
-    string msg;
+    wstring msg;
+    string utf8_string;
     cout << "    Введите сообщение\n";
-    if (cin >> msg) {
-        msg = CreateAutoTextMsg(msg);           //Функция АвтоТекста
-        msg.replace(0, 0, " пишет:");           //Добавляем в начало строки "Пользователь пишет: "
-        msg.replace(0, 0, _cUser.GetName());
+    if (wcin >> msg) {
+        //if(_cUser.GetAutoText())
+            //msg = CreateAutoTextMsg(msg);        //Функция АвтоТекста
+        //msg.replace(0, 0, " пишет:");           //Добавляем в начало строки "Пользователь пишет: "
+        //msg.replace(0, 0, _cUser.GetName());
+
+        // Преобразование wstring в char*
+        wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
+        utf8_string = converter.to_bytes(msg);
     }
-    return msg;
+    return utf8_string;
 }
 
 void Chat::SendMessage() {  //Отправка сообщения пользователю
-    string msg;
     ShowAllUsers();
-    string choice_str;                         //Переменная для сравнения Пользователя из списка уже существующих
+    string user;
+    int id_send = 0;
+    int id_recipient = 0;
+    vector<string> mySQL_res;
     cout << "    Введите имя пользователя из списка\n";
-    if (cin >> choice_str) {
-        for (size_t i = 0; i != (_users.size()); ++i)    //Ищем его в векторе _users
-            if (_users[i].GetLogin() == choice_str) {
-                msg = CreateMessage();
-                _users[i].SetMessageBox(msg);
+    if (cin >> user) {
+        string query{ "SELECT name FROM users where name = '" + user + "';" };
+        cout << "query  = " << query << endl;
+        mySQL_res = SendAndResQueryMySQL(query);
+        if (mySQL_res.empty()) {
+            cout << "   Пользователь не найден\n";
+            return;
+        }
+        else {
+            query = { "SELECT id FROM users where Login = '" + _cUser.GetLogin() + "';" };
+            mySQL_res = SendAndResQueryMySQL(query);
+            if (mySQL_res.empty()) {
+                cout << "   Ошибка!\n";
+                return;
             }
+            else {
+                id_send = stoi(mySQL_res[0]);
+            }
+            query = { "SELECT id FROM users where name = '" + user + "';" };
+            mySQL_res = SendAndResQueryMySQL(query);
+            if (mySQL_res.empty()) {
+                cout << "   Ошибка!\n";
+                return;
+            }
+            else {
+                id_recipient = stoi(mySQL_res[0]);
+            }
+            query = { "insert into messages (text, id_send, id_recipient) values ('" + CreateMessage() + "','" + to_string(id_send) + "','" + to_string(id_recipient) + "');" };
+            cout << query;
+            SendQueryMySQL(query);
+        }
     }
+    return;
 }
+
 string Chat::CreateAutoTextMsg(const string& pat) {
     string pattern = pat;
     vector<string> sugg = tree->AutoComplete(tree->root, pattern);
@@ -283,30 +340,171 @@ string Chat::CreateAutoTextMsg(const string& pat) {
 
 void Chat::MyMessages() {
     cout << "    Ваши сообщения:\n";
-    for (size_t i = 0; i != _users.size(); ++i) {       //Найти в векторе пользователей _users
-        if (_users[i].GetLogin() == _cUser.GetLogin()) {        //Login текущего пользователя(нас интересует индекс i)
-            for (size_t j = 0; j != (_users[i].GetMessageBox())._text.size();++j) {     //Текущему пользователю показать его почтовый ящик из учётки в векторе _users
-                cout << "    " << j << " - " << (_users[i].GetMessageBox())._text[j] << endl;
-            }
+    int id_recipient = 0;
+    vector<string> mySQL_res;
+    string query{ "SELECT id FROM users where Login = '" + _cUser.GetLogin() + "';" };
+    mySQL_res = SendAndResQueryMySQL(query);
+    if (mySQL_res.empty()) {
+        cout << "   Ошибка!\n";
+        return;
+    }
+    else {
+        id_recipient = stoi(mySQL_res[0]);
+    }
+    query = "select name, text, date, time from (select id_send, text, date, time from messages join users where users.id = messages.id_recipient and messages.id_recipient = " + to_string(id_recipient) + ") as t join users where t.id_send = users.id";
+    mySQL_res = SendAndResQueryMySQL(query);
+    if (mySQL_res.empty()) {
+        cout << "   Ошибка!\n";
+        return;
+    }
+    else {
+        for (size_t i = 0; i != mySQL_res.size(); ++i) {
+            //wstring msg((mySQL_res[i]).begin(), (mySQL_res[i]).end());
+            cout << mySQL_res[i] << endl;
         }
     }
 }
 
+
 void Chat::ShowAllUsers() {
     cout << "   Зарегистрированные пользователи:\n";
-    for (size_t i = 0; i != _users.size(); ++i) {           // Вывести вектор _users в cout
-        cout << "    Пользователь [" << i << "] " << _users[i].GetLogin() << endl;
+    vector<string> mySQL_res;
+    string query{ "SELECT name FROM users;" };
+    mySQL_res = SendAndResQueryMySQL(query);
+    cout << "                    " << "  Name  " <<  endl;
+    for (size_t i = 0; i != mySQL_res.size(); ++i) {           
+        cout << "    Пользователь [" << i + 1 << "] " << mySQL_res[i] << endl;
     }
 }
 
 void Chat::SendChatMsg() {
-    string msg(CreateMessage());
-    _chatMsg.push_back(msg);    //Добавляем сообщение в vectror<string>
+    int id_send = 0;
+    vector<string> mySQL_res;
+    string query{ "SELECT id FROM users where Login = '" + _cUser.GetLogin() + "';" };
+    mySQL_res = SendAndResQueryMySQL(query);
+    if (mySQL_res.empty()) {
+        cout << "   Ошибка!\n";
+        return;
+    }
+    else {
+        id_send = stoi(mySQL_res[0]);
+    }
+    query = "insert into chat (text, user_id) values ('" + CreateMessage() + "','" + to_string(id_send) + "');";
+    cout << query;
+    SendQueryMySQL(query);
     return;
 }
 
 void Chat::ShowChatMsg() {  //Сообщения Чата
     cout << "    Сообщения Чата:\n";
-    for (size_t i = 0; i != _chatMsg.size(); ++i)
-        cout << "  " << _chatMsg[i] << endl;
+    vector<string> mySQL_res;
+    string query{ "select name, text, date, time from users join chat where users.id = chat.user_id" };
+    mySQL_res = SendAndResQueryMySQL(query);
+    for (size_t i = 0; i != mySQL_res.size(); ++i) {           
+        //wstring msg((mySQL_res[i]).begin(), (mySQL_res[i]).end());
+        cout << mySQL_res[i] << endl;
+    }
+}
+
+
+void Chat::SendQueryMySQL(const string& query) {
+    MYSQL mysql; 
+    mysql_init(&mysql);
+    if (!&mysql) {
+        cout << "Error: can't create MySQL-descriptor" << endl;
+    }
+    if (!mysql_real_connect(&mysql, "localhost", "root", "Vthrekmtd@$7753191", "echat_db", 0, NULL, 0)) {
+        cout << "Error: can't connect to database " << mysql_error(&mysql) << endl;
+    }
+    else {
+        cout << "Success!" << endl;
+    }
+    mysql_set_character_set(&mysql, "utf8mb4");
+    mysql_query(&mysql, query.c_str());
+    mysql_close(&mysql);
+}
+
+vector<string> Chat::SendAndResQueryMySQL(const string& query) {
+    string row_string;
+    vector<string> result;
+    MYSQL mysql;
+    MYSQL_RES* res;
+    MYSQL_ROW row;
+    mysql_init(&mysql);
+    if (!&mysql) {
+        cout << "Error: can't create MySQL-descriptor" << endl;
+    }
+    if (!mysql_real_connect(&mysql, "localhost", "root", "Vthrekmtd@$7753191", "echat_db", 0, NULL, 0)) {
+        cout << "Error: can't connect to database " << mysql_error(&mysql) << endl;
+    }
+    else {
+        cout << "Success!" << endl;
+    }
+    mysql_set_character_set(&mysql, "utf8mb4");
+    mysql_query(&mysql, query.c_str());
+    if (res = mysql_store_result(&mysql)) {
+        while (row = mysql_fetch_row(res)) {
+            row_string.clear();
+            for (size_t i = 0; i < mysql_num_fields(res); i++) {
+                if (row[i]) {
+                    cout << row[i] << "  ";
+                    row_string = row_string + row[i] + "  ";
+                }
+                else {
+                    row_string = row_string + "No data" + "  ";
+                }
+            }
+            cout << endl;
+            result.push_back(row_string);
+        }
+    }
+    else
+        cout << "Ошибка MySql номер " << mysql_error(&mysql);
+    mysql_free_result(res);
+    mysql_close(&mysql);
+    return result;
+}
+
+bool Chat::IsAlNumString(const string& check) {
+    for (size_t i = 0;i != check.size();++i) {
+        if (!isalnum(check[i]))
+            return false;
+    }
+    return true;
+}
+
+bool Chat::CheckMaskPass(const string& pass) {
+    string mask_pass = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+,-./|\\\"':;<=>?@[]^_`{}~";
+    bool run = true;
+    while (run) {
+        for (size_t i = 0;i != pass.size();++i) {
+            if (mask_pass.find(pass[i]) > mask_pass.size()) 
+                return false;            
+        }
+        run = false;
+    }
+    return true;
+}
+
+void Chat::ShowAutoTextMenu() {
+    bool runMenuAT = 1;
+    while (runMenuAT) {
+        cout << "\n   Меню Функции автотеста\n" << endl;
+        cout << "    Сейчас Автотекст " << ((_cUser.GetAutoText()) ? "включен" : "выключен");
+        cout << "\n    1 - Включить Автотекст\n    2 - Выключить Автотекст\n    3 - Вернуться в главное меню\n";
+        int choice;
+        if (cin >> choice) {
+            switch (choice) {
+            case 1:
+                _cUser.SetAutoText(1);
+                break;
+            case 2:
+                _cUser.SetAutoText(0);
+                break;
+            case 3:
+                runMenuAT = 0;
+                return;
+            }
+        }
+    }
 }

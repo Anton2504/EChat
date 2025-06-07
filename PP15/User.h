@@ -17,11 +17,14 @@ struct User {
     string GetName() const;
     MessageBox GetMessageBox() const;   //Почтовый ящик пользователя vector<string>
     bool GetAutorized() const;
+    bool GetAutoText() const;
     void SetAutorized(bool&& autoriz);
+    void SetAutoText(bool&& autotext);
 private:
     string _login;
     string _pass;               //Хранит хеш пароля (SHA256)
     string _name;
+    bool _autotext = 0;         //Функция автотекста
     bool _autorized = 0;        //Авторизирован ли пользователь
     MessageBox _msgs;
 };

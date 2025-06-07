@@ -1,7 +1,7 @@
-#include "User.h"
+﻿#include "User.h"
 
 User::User(const string& login, const string& pass, const string& name) : _login(login), _pass(pass), _name(name) {
-    _autorized = 0;
+    _autorized = 0; _autotext = 0;
 }
 
 User::User(const User& user) {
@@ -10,6 +10,7 @@ User::User(const User& user) {
     _name = user._name;
     _msgs = user._msgs;
     _autorized = user._autorized;
+    _autotext = user._autotext;
 }
 
 User& User::operator=(const User& user) {
@@ -18,6 +19,7 @@ User& User::operator=(const User& user) {
     _name = user._name;
     _msgs = user._msgs;
     _autorized = user._autorized;
+    _autotext = user._autotext;
     return *this;
 }
 
@@ -41,4 +43,8 @@ MessageBox User::GetMessageBox() const { return _msgs; }
 
 bool User::GetAutorized() const { return _autorized; }
 
+bool User::GetAutoText() const { return _autotext; }
+
 void User::SetAutorized(bool&& autoriz) { _autorized = autoriz; }
+
+void User::SetAutoText(bool&& autotext) { _autotext = autotext; }
