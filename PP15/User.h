@@ -1,5 +1,7 @@
 ﻿#pragma once
-#include "MessageBox.h"
+#include <iostream>
+
+using namespace std;
 
 struct User {
     User() = default;
@@ -10,12 +12,9 @@ struct User {
     void SetLogin(const string& l);
     void SetPass(const string& p);
     void SetName(const string& n);
-    void SetMessageBox(const string& msg);
-    void SetMessageBox(string&& msg);
     string GetLogin() const;
     string GetPass() const;
     string GetName() const;
-    MessageBox GetMessageBox() const;   //Почтовый ящик пользователя vector<string>
     bool GetAutorized() const;
     bool GetAutoText() const;
     void SetAutorized(bool&& autoriz);
@@ -26,5 +25,4 @@ private:
     string _name;
     bool _autotext = 0;         //Функция автотекста
     bool _autorized = 0;        //Авторизирован ли пользователь
-    MessageBox _msgs;
 };

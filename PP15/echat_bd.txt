@@ -1,0 +1,38 @@
+
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `login` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_unique` (`login`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `users_login` (
+  `user_login` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pass` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`user_login`),
+  CONSTRAINT `users_login_users_FK` FOREIGN KEY (`user_login`) REFERENCES `users` (`login`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `messages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_send` int NOT NULL,
+  `id_recipient` int NOT NULL,
+  `status_read` tinyint(1) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `time` time DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `messages_users_FK` (`id_send`),
+  CONSTRAINT `messages_users_FK` FOREIGN KEY (`id_send`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `chat_date_time` BEFORE INSERT ON `chat` FOR EACH ROW SET NEW.date = NOW(), new.time = now()
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `message_date_time` BEFORE INSERT ON `messages` FOR EACH ROW SET NEW.date = NOW(), new.time = now()
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `upd_user` AFTER INSERT ON `users` FOR EACH ROW begin	
+	insert into users_login values (new.login,Null);    
+  end

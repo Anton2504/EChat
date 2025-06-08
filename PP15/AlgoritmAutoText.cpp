@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "AlgoritmAutoText.h"
-using namespace std;
 
 
 TTree::Node* TTree::CreateNode(char newData)

@@ -1,26 +1,20 @@
 ﻿#include "Chat.h"
-#include <codecvt> // Для кодировки
+#include <codecvt> // Для кодировки w_char
 
-void Chat::Start() {    
-    User test1("Tor2", "1234", "Ant");        //Тестовые пользователи
-    User test2("Locki", "123t4", "Wasd777");
-    _users.push_back(move(test1));                    //Тестовые пользователи добавляем в _users
-    _users.push_back(move(test2));
+void Chat::Start() {
+    _conn = _mysql.GetConnect();    //mySQL
     tree = make_unique<TTree>();                    //Тестовое дерево
     vector<string> words{ "string","vector","char","int","auto" };
     for (string str : words)
-        tree->Insert(&tree->root, str);             //Добавление слов в дерево из вектора words
-    
-    
-    bool runMainMenu = 1; int choice;       //Переменные в Start() для навигации и выбора по меню с помощью проверок
+        tree->Insert(&tree->root, str);             //Добавление слов в дерево из вектора words  
+    bool runMainMenu = 1; int choice = 0;       //Переменные в Start() для навигации и выбора по меню с помощью проверок
     while (runMainMenu) {
-        ShowMain();
+        cout << "\n   Добро пожаловать в EChat 1.3\n" << endl;
+        cout << "    1 - Зарегистрироваться\n    2 - Войти\n    3 - Выход\n";
         if (cin >> choice) {
             switch (choice) {
             case 1:
                 AddNewUser();
-                if (_cUser.GetAutorized())
-                    ShowUserMenu();
                 break;
             case 2:
                 LogIn();
@@ -37,11 +31,6 @@ void Chat::Start() {
         else return;
     }
     return;
-}
-
-void Chat::ShowMain() {
-    cout << "\n   Добро пожаловать в EChat 1.3\n" << endl;
-    cout << "    1 - Зарегистрироваться\n    2 - Войти\n    3 - Выход\n";
 }
 
 void Chat::ShowUserMenu() {    
@@ -104,8 +93,7 @@ void Chat::LogIn() {
         if (IsAlNumString(login_check)) {
             vector<string> mySQL_res;
             string query{ "SELECT login FROM users where login = '" + login_check + "';" };
-            cout << "query  = " << query << endl;
-            mySQL_res = SendAndResQueryMySQL(query);
+            mySQL_res = SendAndResQueryMySQL(_conn, query);
             if (mySQL_res.empty()) {
                 cout << "   Данный Login отсутсвует в списке пользователей\n   Введите корректный Login или зарегистрируйтесь\n";
             }
@@ -113,7 +101,7 @@ void Chat::LogIn() {
                 _cUser.SetLogin(login_check);
                 if (CheckPass()) {
                     query = { "SELECT name FROM users where login = '" + login_check + "';" };
-                    mySQL_res = SendAndResQueryMySQL(query);
+                    mySQL_res = SendAndResQueryMySQL(_conn, query);
                     if (!mySQL_res.empty()) {
                         _cUser.SetName(mySQL_res[0]);
                     }
@@ -124,7 +112,6 @@ void Chat::LogIn() {
         }
     }
 }
-
 
 bool Chat::CheckPass() {
     cout << "   Введите пароль\n";
@@ -139,9 +126,7 @@ bool Chat::CheckPass() {
                 temp.update(pass);
                 pass = temp.backToString(temp.digest());    //возвращаем хеш пароля
                 string query{ "select pass from users_login where user_login = '" + _cUser.GetLogin() + "' and pass = '" + pass + "';" };
-                cout << "query = " << query << endl;
-                cout << "pass = " << pass << endl;
-                mySQL_res = SendAndResQueryMySQL(query);
+                mySQL_res = SendAndResQueryMySQL(_conn, query);
                 if (!mySQL_res.empty()) {
                     cout << "    Авторизация выполнена\n";
                     return true;
@@ -163,8 +148,6 @@ void Chat::AddNewUser() {
     CreateName();
     CreatePassword();
     cout << "   Учётная запись успешно создана" << endl;
-    //_users.push_back(_cUser);
-    _cUser.SetAutorized(1);
 }
 
 void Chat::CreateLogin() {
@@ -175,16 +158,14 @@ void Chat::CreateLogin() {
         if (cin >> login) {
             if (IsAlNumString(login)) {
                 string query{ "SELECT login FROM users where login = '" + login + "';" };
-                cout << "query  = " << query << endl;
-                mySQL_res = SendAndResQueryMySQL(query);
+                mySQL_res = SendAndResQueryMySQL(_conn, query);
                 if (!mySQL_res.empty()) {
                     cout << "   Ошибка при создании пользователя :(\n   Попробуйте ещё раз\n";
                     continue;
                 }
                 else {
                     query = "insert into users (login) values ('" + login + "');";
-                    cout << "query  = " << query << endl;
-                    SendQueryMySQL(query);
+                    SendQueryMySQL(_conn, query);
                     valid_login = 1;
                     _cUser.SetLogin(login);
                     cout << "   Login " << login << " создан\n";
@@ -204,7 +185,7 @@ void Chat::CreatePassword() {
     const int size_pass{ 14 };
     string pass;
     cout << "   Создайте пароль от учётной записи" << endl;
-    cout << "Пароль должен быть от 4 до " << size_pass << "символов, \nсодержать только латинские, специальные символы и числа\n";
+    cout << "   Пароль должен быть от 4 до " << size_pass << "символов, \n   содержать только латинские, специальные символы и числа\n";
     while (!valid_pass) {
         if (cin >> pass) {
             if (CheckMaskPass(pass) && (pass.size() <= size_pass) && (pass.size() > 4)) {
@@ -212,8 +193,7 @@ void Chat::CreatePassword() {
                 temp.update(pass);
                 pass = temp.backToString(temp.digest());    //возвращаем хеш пароля
                 string query{ "update users_login set pass ='" + pass + "' where user_login = '" + _cUser.GetLogin() + "';" };
-                cout << "query  = " << query << endl;
-                SendQueryMySQL(query);
+                SendQueryMySQL(_conn, query);
                 cout << "   Пароль успешно создан"  << endl;
                 valid_pass = 1;     //Выходим из цикла
                 continue;
@@ -235,19 +215,16 @@ void Chat::CreateName() {
         if (cin >> name) {
             if (IsAlNumString(name)) {
                 string query{ "SELECT name FROM users where name = '" + name + "';" };
-                cout << "query  = " << query << endl;
-                mySQL_res = SendAndResQueryMySQL(query);
+                mySQL_res = SendAndResQueryMySQL(_conn, query);
                 if (!mySQL_res.empty()) {
                     cout << "   Ошибка при создании name \n   Пользователь с таким именем уже существует\n";
                     continue;
                 }
                 else {
                     query = { "update users set name ='" + name + "' where login = '" + _cUser.GetLogin() + "';" };
-                    cout << "query  = " << query << endl;
-                    SendQueryMySQL(query);
+                    SendQueryMySQL(_conn, query);
                     _cUser.SetName(name);
                     valid_name = true;
-                    cout << "   Приветсвую " << name << endl;
                     return;
                 }
             }
@@ -262,15 +239,15 @@ void Chat::CreateName() {
 string Chat::CreateMessage() {
     wstring msg;
     string utf8_string;
+    wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
     cout << "    Введите сообщение\n";
     if (wcin >> msg) {
-        //if(_cUser.GetAutoText())
-            //msg = CreateAutoTextMsg(msg);        //Функция АвтоТекста
-        //msg.replace(0, 0, " пишет:");           //Добавляем в начало строки "Пользователь пишет: "
-        //msg.replace(0, 0, _cUser.GetName());
-
-        // Преобразование wstring в char*
-        wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
+        if(_cUser.GetAutoText())
+            if (IsAlNumString(converter.to_bytes(msg)))
+                utf8_string = CreateAutoTextMsg(converter.to_bytes(msg));                    //Функция АвтоТекста
+            else {
+                cout << "    К сожалению, функция Автотескта работает только с латинскими символами :(\n";
+            }  
         utf8_string = converter.to_bytes(msg);
     }
     return utf8_string;
@@ -285,15 +262,14 @@ void Chat::SendMessage() {  //Отправка сообщения пользов
     cout << "    Введите имя пользователя из списка\n";
     if (cin >> user) {
         string query{ "SELECT name FROM users where name = '" + user + "';" };
-        cout << "query  = " << query << endl;
-        mySQL_res = SendAndResQueryMySQL(query);
+        mySQL_res = SendAndResQueryMySQL(_conn, query);
         if (mySQL_res.empty()) {
             cout << "   Пользователь не найден\n";
             return;
         }
         else {
             query = { "SELECT id FROM users where Login = '" + _cUser.GetLogin() + "';" };
-            mySQL_res = SendAndResQueryMySQL(query);
+            mySQL_res = SendAndResQueryMySQL(_conn, query);
             if (mySQL_res.empty()) {
                 cout << "   Ошибка!\n";
                 return;
@@ -302,7 +278,7 @@ void Chat::SendMessage() {  //Отправка сообщения пользов
                 id_send = stoi(mySQL_res[0]);
             }
             query = { "SELECT id FROM users where name = '" + user + "';" };
-            mySQL_res = SendAndResQueryMySQL(query);
+            mySQL_res = SendAndResQueryMySQL(_conn, query);
             if (mySQL_res.empty()) {
                 cout << "   Ошибка!\n";
                 return;
@@ -311,8 +287,7 @@ void Chat::SendMessage() {  //Отправка сообщения пользов
                 id_recipient = stoi(mySQL_res[0]);
             }
             query = { "insert into messages (text, id_send, id_recipient) values ('" + CreateMessage() + "','" + to_string(id_send) + "','" + to_string(id_recipient) + "');" };
-            cout << query;
-            SendQueryMySQL(query);
+            SendQueryMySQL(_conn, query);
         }
     }
     return;
@@ -342,8 +317,9 @@ void Chat::MyMessages() {
     cout << "    Ваши сообщения:\n";
     int id_recipient = 0;
     vector<string> mySQL_res;
+    vector<wstring> mySQL_res_rus;
     string query{ "SELECT id FROM users where Login = '" + _cUser.GetLogin() + "';" };
-    mySQL_res = SendAndResQueryMySQL(query);
+    mySQL_res = SendAndResQueryMySQL(_conn, query);
     if (mySQL_res.empty()) {
         cout << "   Ошибка!\n";
         return;
@@ -352,25 +328,23 @@ void Chat::MyMessages() {
         id_recipient = stoi(mySQL_res[0]);
     }
     query = "select name, text, date, time from (select id_send, text, date, time from messages join users where users.id = messages.id_recipient and messages.id_recipient = " + to_string(id_recipient) + ") as t join users where t.id_send = users.id";
-    mySQL_res = SendAndResQueryMySQL(query);
-    if (mySQL_res.empty()) {
-        cout << "   Ошибка!\n";
+    mySQL_res_rus = SendAndResQueryMySQL_rus(_conn, query);
+    if (mySQL_res_rus.empty()) {
+        cout << "   Сообщений пока нет\n";
         return;
     }
     else {
-        for (size_t i = 0; i != mySQL_res.size(); ++i) {
-            //wstring msg((mySQL_res[i]).begin(), (mySQL_res[i]).end());
-            cout << mySQL_res[i] << endl;
+        for (size_t i = 0; i != mySQL_res_rus.size(); ++i) {
+            wcout << mySQL_res_rus[i] << endl;
         }
     }
 }
-
 
 void Chat::ShowAllUsers() {
     cout << "   Зарегистрированные пользователи:\n";
     vector<string> mySQL_res;
     string query{ "SELECT name FROM users;" };
-    mySQL_res = SendAndResQueryMySQL(query);
+    mySQL_res = SendAndResQueryMySQL(_conn, query);
     cout << "                    " << "  Name  " <<  endl;
     for (size_t i = 0; i != mySQL_res.size(); ++i) {           
         cout << "    Пользователь [" << i + 1 << "] " << mySQL_res[i] << endl;
@@ -381,7 +355,7 @@ void Chat::SendChatMsg() {
     int id_send = 0;
     vector<string> mySQL_res;
     string query{ "SELECT id FROM users where Login = '" + _cUser.GetLogin() + "';" };
-    mySQL_res = SendAndResQueryMySQL(query);
+    mySQL_res = SendAndResQueryMySQL(_conn, query);
     if (mySQL_res.empty()) {
         cout << "   Ошибка!\n";
         return;
@@ -390,78 +364,77 @@ void Chat::SendChatMsg() {
         id_send = stoi(mySQL_res[0]);
     }
     query = "insert into chat (text, user_id) values ('" + CreateMessage() + "','" + to_string(id_send) + "');";
-    cout << query;
-    SendQueryMySQL(query);
+    SendQueryMySQL(_conn, query);
     return;
 }
 
+
 void Chat::ShowChatMsg() {  //Сообщения Чата
     cout << "    Сообщения Чата:\n";
-    vector<string> mySQL_res;
+    vector<wstring> mySQL_res;
     string query{ "select name, text, date, time from users join chat where users.id = chat.user_id" };
-    mySQL_res = SendAndResQueryMySQL(query);
-    for (size_t i = 0; i != mySQL_res.size(); ++i) {           
-        //wstring msg((mySQL_res[i]).begin(), (mySQL_res[i]).end());
-        cout << mySQL_res[i] << endl;
+    mySQL_res = SendAndResQueryMySQL_rus(_conn, query);
+    for (size_t i = 0; i != mySQL_res.size(); ++i) {
+        wcout << mySQL_res[i] << endl;
     }
 }
 
-
-void Chat::SendQueryMySQL(const string& query) {
-    MYSQL mysql; 
-    mysql_init(&mysql);
-    if (!&mysql) {
-        cout << "Error: can't create MySQL-descriptor" << endl;
-    }
-    if (!mysql_real_connect(&mysql, "localhost", "root", "Vthrekmtd@$7753191", "echat_db", 0, NULL, 0)) {
-        cout << "Error: can't connect to database " << mysql_error(&mysql) << endl;
-    }
-    else {
-        cout << "Success!" << endl;
-    }
-    mysql_set_character_set(&mysql, "utf8mb4");
-    mysql_query(&mysql, query.c_str());
-    mysql_close(&mysql);
+void Chat::SendQueryMySQL(MYSQL* mysql, const string& query) {
+    mysql_query(mysql, query.c_str());
 }
 
-vector<string> Chat::SendAndResQueryMySQL(const string& query) {
+vector<string> Chat::SendAndResQueryMySQL(MYSQL* mysql, const string& query) {
     string row_string;
     vector<string> result;
-    MYSQL mysql;
     MYSQL_RES* res;
-    MYSQL_ROW row;
-    mysql_init(&mysql);
-    if (!&mysql) {
-        cout << "Error: can't create MySQL-descriptor" << endl;
-    }
-    if (!mysql_real_connect(&mysql, "localhost", "root", "Vthrekmtd@$7753191", "echat_db", 0, NULL, 0)) {
-        cout << "Error: can't connect to database " << mysql_error(&mysql) << endl;
-    }
-    else {
-        cout << "Success!" << endl;
-    }
-    mysql_set_character_set(&mysql, "utf8mb4");
-    mysql_query(&mysql, query.c_str());
-    if (res = mysql_store_result(&mysql)) {
+    MYSQL_ROW row;    
+    mysql_query(mysql, query.c_str());
+    if (res = mysql_store_result(mysql)) {
         while (row = mysql_fetch_row(res)) {
             row_string.clear();
             for (size_t i = 0; i < mysql_num_fields(res); i++) {
                 if (row[i]) {
-                    cout << row[i] << "  ";
                     row_string = row_string + row[i] + "  ";
                 }
                 else {
                     row_string = row_string + "No data" + "  ";
                 }
             }
-            cout << endl;
             result.push_back(row_string);
         }
     }
     else
-        cout << "Ошибка MySql номер " << mysql_error(&mysql);
+        cout << "Ошибка MySql номер " << mysql_error(mysql);
     mysql_free_result(res);
-    mysql_close(&mysql);
+    return result;
+}
+
+
+
+vector<wstring> Chat::SendAndResQueryMySQL_rus(MYSQL* mysql, const string& query) {
+    wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    wstring row_string;
+    vector<wstring> result;
+    MYSQL_RES* res;
+    MYSQL_ROW row;
+    mysql_query(mysql, query.c_str());
+    if (res = mysql_store_result(mysql)) {
+        while (row = mysql_fetch_row(res)) {
+            row_string.clear();
+            for (size_t i = 0; i < mysql_num_fields(res); i++) {
+                if (row[i]) {
+                    row_string = row_string + converter.from_bytes(row[i]) + L"  ";
+                }
+                else {
+                    row_string = row_string + L"No data" + L"  ";
+                }
+            }
+            result.push_back(row_string);
+        }
+    }
+    else
+        cout << "Ошибка MySql номер " << mysql_error(mysql);
+    mysql_free_result(res);
     return result;
 }
 
