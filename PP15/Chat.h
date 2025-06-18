@@ -34,10 +34,7 @@ public:
     bool IsAlNumString(const string& check);        //Проверка на датинские символы
     bool CheckMaskPass(const string& pass);         //Проверка маски пароля
 
-    MySQLconn _mysql;               //MSQL коннектор
-    void SendQueryMySQL(MYSQL* mysql, const string& query);         //запрос к bd
-    vector<string> SendAndResQueryMySQL(MYSQL* mysql, const string& query);
-    vector<wstring> SendAndResQueryMySQL_rus(MYSQL* mysql, const string& query);   //вывод Русских букв из bd
+    MySQLconn _mysql;               //MSQL коннектор + prepared statements и запросы к bd
 
     friend class SHA256;        //Hash класс
 };

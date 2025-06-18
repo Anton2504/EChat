@@ -45,7 +45,7 @@ void TTree::Traverse(Node* root, vector<string>& ret, char* buff, int depth = 0)
 }
 
 vector<string> TTree::TraverseUtil(Node* root, string pattern) {
-    char buffer[40];
+    char buffer[256];
     vector<string> ret;
     Traverse(root, ret, buffer);
     if (root && (root->end == 1))
